@@ -1,7 +1,7 @@
 #! /bin/sh
 
 echo "Building..."
-g++ -o cpp_snake src/main.cpp
+make all
 echo "Build finished!"
 
 echo "Running..."

@@ -7,7 +7,7 @@ using namespace std;
 SnakeGame::SnakeGame(int width, int height) {
   board = new Board2D<BoardData>(width, height, Empty);
 
-  for (int i = 0; i < 5; i++)
+  for (int i = 0; i < (width * height / 10); i++)
   {
     int x = rand() % board->getWidth();
     int y = rand() % board->getHeight();
