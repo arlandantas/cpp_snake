@@ -5,72 +5,9 @@
 #include <chrono>
 #include <thread>
 #include <cstdlib>
+#include "headers/Board2D.h"
 
 using namespace std;
-
-struct BoardPosition {
-  int x;
-  int y;
-};
-
-template<typename CellType> class Board2D {
-  public:
-    Board2D (int _height, int _width, CellType _defaultValue) {
-      height = _height;
-      width = _width;
-      board = new CellType*[_height];
-      defaultValue = _defaultValue;
-      for (int i = 0; i < height; i++)
-      {
-        board[i] = new CellType[_width];
-        for (int j = 0; j < width; j++)
-        {
-          board[i][j] = defaultValue;
-        }
-      }
-    }
-    CellType at(int x, int y) {
-      return board[y][x];
-    }
-    CellType at(BoardPosition position) {
-      return at(position.x, position.y);
-    }
-    void set(CellType value, int x, int y) {
-      board[y][x] = value;
-    }
-    void set(CellType value, BoardPosition position) {
-      set(value, position.x, position.y);
-    }
-    void reset(int x, int y) {
-      set(defaultValue, x, y);
-    }
-    void reset(BoardPosition position) {
-      reset(position.x, position.y);
-    }
-    void setAll(CellType value) {
-      for (int i = 0; i < height; i++)
-      {
-        for (int j = 0; j < width; j++)
-        {
-          set(value, j, i);
-        }
-      }
-    }
-    void resetAll() {
-      setAll(defaultValue);
-    }
-    int getWidth() {
-      return width;
-    }
-    int getHeight() {
-      return height;
-    }
-  private:
-    CellType** board;
-    CellType defaultValue;
-    int width;
-    int height;
-};
 
 class SnakeGame {
   public:
