@@ -2,6 +2,8 @@
 #include <vector>
 #include <map>
 #include <string>
+#include <chrono>
+#include <thread>
 
 using namespace std;
 
@@ -118,44 +120,53 @@ class SnakeGame {
       print();
     }
 
-    enum HeadDirection { Up, Right, Down, Left };
-    void turn(HeadDirection direction) {
-      headDirection = direction;
+    enum BoardData {
+      Empty,
+      SnakeBodyUp,
+      SnakeBodyRight,
+      SnakeBodyDown,
+      SnakeBodyLeft,
+      SnakeTail,
+      Food,
+      Wall
+    };
+
+    void turn(BoardData direction) {
+      board->set(direction, headPosition);
+      print();
     }
 
   private:
-    enum BoardData { Empty, SnakeBodyUp, SnakeBodyRight, SnakeBodyDown, SnakeBodyLeft, SnakeTail, Food, Wall };
     Board2D<BoardData> *board;
     map<int, char> printChars;
-    HeadDirection headDirection = Right;
     BoardPosition headPosition = { x: 0, y: 0 };
     BoardPosition tailPosition = { x: 0, y: 0 };
-    BoardPosition getNextPosition(BoardPosition currentPosition, HeadDirection direction) {
+    BoardPosition getNextPosition(BoardPosition currentPosition) {
       BoardPosition nextPosition = currentPosition;
-      switch (direction)
+      switch (board->at(currentPosition))
       {
-        case Up:
+        case SnakeBodyUp:
           if (currentPosition.y == 0) {
             nextPosition.y = board->getHeight() - 1;
           } else {
             nextPosition.y = currentPosition.y - 1;
           }
           break;
-        case Down:
+        case SnakeBodyDown:
           if (currentPosition.y == board->getHeight() - 1) {
             nextPosition.y = 0;
           } else {
             nextPosition.y = currentPosition.y + 1;
           }
           break;
-        case Left:
+        case SnakeBodyLeft:
           if (currentPosition.x == 0) {
             nextPosition.x = board->getWidth() - 1;
           } else {
             nextPosition.x = currentPosition.x - 1;
           }
           break;
-        case Right:
+        case SnakeBodyRight:
           if (currentPosition.x == board->getWidth() - 1) {
             nextPosition.x = 0;
           } else {
@@ -165,52 +176,17 @@ class SnakeGame {
       }
       return nextPosition;
     }
-    BoardData getBoardFromDirection(HeadDirection headDirection) {
-      switch (headDirection)
-      {
-        case Up:
-          return SnakeBodyUp;
-          break;
-        case Right:
-          return SnakeBodyRight;
-          break;
-        case Down:
-          return SnakeBodyDown;
-          break;
-        case Left:
-          return SnakeBodyLeft;
-          break;
-      }
-      return SnakeBodyUp;
-    }
-    HeadDirection getDirectionFromBoard(BoardData boardData) {
-      switch (boardData)
-      {
-        case SnakeBodyUp:
-          return Up;
-          break;
-        case SnakeBodyRight:
-          return Right;
-          break;
-        case SnakeBodyDown:
-          return Down;
-          break;
-        case SnakeBodyLeft:
-          return Left;
-          break;
-      }
-      return Up;
-    }
     void move() {
-      BoardPosition nextHeadPosition = getNextPosition(headPosition, headDirection);
+      BoardPosition nextHeadPosition = getNextPosition(headPosition);
       BoardData nextHeadCell = board->at(nextHeadPosition);
       bool foodAhead = nextHeadCell == Food;
       if (!foodAhead) {
-        BoardData currentTailCell = board->at(tailPosition);
+        BoardData currentTailData = board->at(tailPosition);
+        BoardPosition nextTailPosition = getNextPosition(tailPosition);
         board->reset(tailPosition);
-        tailPosition = getNextPosition(tailPosition, getDirectionFromBoard(currentTailCell));
+        tailPosition = nextTailPosition;
       }
-      board->set(getBoardFromDirection(headDirection), nextHeadPosition);
+      board->set(board->at(headPosition), nextHeadPosition);
       headPosition = nextHeadPosition;
     }
 };
@@ -227,14 +203,20 @@ int main(int argc, char const *argv[])
 
   SnakeGame *game = new SnakeGame(boardWidth, boardHeight);
   game->print(false);
-  for (int i = 0; i < 5; i++)
+  SnakeGame::BoardData direcoes[] {
+    SnakeGame::SnakeBodyRight,
+    SnakeGame::SnakeBodyDown,
+    SnakeGame::SnakeBodyLeft,
+    SnakeGame::SnakeBodyUp
+  };
+  for (int i = 0; i < 4; i++)
   {
-    game->tick();
-  }
-  game->turn(SnakeGame::Down);
-  for (int i = 0; i < 5; i++)
-  {
-    game->tick();
+    game->turn(direcoes[i]);
+    for (int i = 0; i < 5; i++)
+    {
+      game->tick();
+      std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    }
   }
   return 0;
 }
