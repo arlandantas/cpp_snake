@@ -1,4 +1,5 @@
 #include "headers/Board2D.h"
+#include "headers/SnakeGame.h"
 
 template<typename CellType> Board2D<CellType>::Board2D(int _height, int _width, CellType _defaultValue) {
   height = _height;
@@ -50,3 +51,4 @@ template<typename CellType> int Board2D<CellType>::getWidth() {
 template<typename CellType> int Board2D<CellType>::getHeight() {
   return height;
 }
+template class Board2D<SnakeGame::BoardData>;

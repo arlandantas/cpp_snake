@@ -8,7 +8,7 @@ struct BoardPosition {
 
 template<typename CellType> class Board2D {
   public:
-    Board2D (int _height, int _width, CellType _defaultValue);
+    Board2D(int _height, int _width, CellType _defaultValue);
     CellType at(int x, int y);
     CellType at(BoardPosition position);
     void set(CellType value, int x, int y);
