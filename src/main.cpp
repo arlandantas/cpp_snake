@@ -101,13 +101,6 @@ class SnakeGame {
 
     SnakeGame(int width, int height) {
       board = new Board2D<BoardData>(width, height, Empty);
-      printChars[Empty] = ' ';
-      printChars[SnakeBodyUp] = '^';
-      printChars[SnakeBodyRight] = '>';
-      printChars[SnakeBodyDown] = 'v';
-      printChars[SnakeBodyLeft] = '<';
-      printChars[SnakeTail] = 'O';
-      printChars[Food] = 'X';
 
       for (int i = 0; i < 5; i++)
       {
@@ -153,7 +146,15 @@ class SnakeGame {
 
   private:
     Board2D<BoardData> *board;
-    map<int, char> printChars;
+    map<int, char> printChars = {
+      { Empty, ' ' },
+      { SnakeBodyUp, '^' },
+      { SnakeBodyRight, '>' },
+      { SnakeBodyDown, 'v' },
+      { SnakeBodyLeft, '<' },
+      { SnakeTail, 'O' },
+      { Food, 'X' }
+    };
     BoardPosition headPosition = { x: 0, y: 0 };
     BoardPosition tailPosition = { x: 0, y: 0 };
     BoardPosition getNextPosition(BoardPosition currentPosition) {
