@@ -29,11 +29,20 @@ template<typename CellType> class Board2D {
     CellType at(int x, int y) {
       return board[y][x];
     }
+    CellType at(BoardPosition position) {
+      return at(position.x, position.y);
+    }
     void set(CellType value, int x, int y) {
       board[y][x] = value;
     }
+    void set(CellType value, BoardPosition position) {
+      set(value, position.x, position.y);
+    }
     void reset(int x, int y) {
       set(defaultValue, x, y);
+    }
+    void reset(BoardPosition position) {
+      reset(position.x, position.y);
     }
     void setAll(CellType value) {
       for (int i = 0; i < height; i++)
@@ -99,14 +108,14 @@ class SnakeGame {
 
       headPosition = { x: 2, y: 0 };
       tailPosition = { x: 0, y: 0 };
-      board->set(SnakeBodyRight, headPosition.x, headPosition.y);
+      board->set(SnakeBodyRight, headPosition);
       board->set(SnakeBodyRight, headPosition.x - 1, headPosition.y);
-      board->set(SnakeBodyRight, tailPosition.x, tailPosition.y);
+      board->set(SnakeBodyRight, tailPosition);
     }
 
     void tick() {
       move();
-      print(false);
+      print();
     }
 
     enum HeadDirection { Up, Right, Down, Left };
@@ -194,14 +203,14 @@ class SnakeGame {
     }
     void move() {
       BoardPosition nextHeadPosition = getNextPosition(headPosition, headDirection);
-      BoardData nextHeadCell = board->at(nextHeadPosition.x, nextHeadPosition. y);
+      BoardData nextHeadCell = board->at(nextHeadPosition);
       bool foodAhead = nextHeadCell == Food;
       if (!foodAhead) {
-        BoardData currentTailCell = board->at(tailPosition.x, tailPosition.y);
-        board->set(Empty, tailPosition.x, tailPosition.y);
+        BoardData currentTailCell = board->at(tailPosition);
+        board->reset(tailPosition);
         tailPosition = getNextPosition(tailPosition, getDirectionFromBoard(currentTailCell));
       }
-      board->set(getBoardFromDirection(headDirection), nextHeadPosition.x, nextHeadPosition.y);
+      board->set(getBoardFromDirection(headDirection), nextHeadPosition);
       headPosition = nextHeadPosition;
     }
 };
@@ -218,14 +227,14 @@ int main(int argc, char const *argv[])
 
   SnakeGame *game = new SnakeGame(boardWidth, boardHeight);
   game->print(false);
-  // for (int i = 0; i < 5; i++)
-  // {
-  //   game->tick();
-  // }
-  // game->turn(SnakeGame::Down);
-  // for (int i = 0; i < 5; i++)
-  // {
-  //   game->tick();
-  // }
+  for (int i = 0; i < 5; i++)
+  {
+    game->tick();
+  }
+  game->turn(SnakeGame::Down);
+  for (int i = 0; i < 5; i++)
+  {
+    game->tick();
+  }
   return 0;
 }
