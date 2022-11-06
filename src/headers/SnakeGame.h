@@ -1,4 +1,5 @@
 #include <map>
+#include <thread>
 #include "Board2D.h"
 
 using namespace std;
@@ -19,6 +20,8 @@ class SnakeGame {
       Wall
     };
     bool turn(BoardData direction);
+    void startTicking();
+    void stopTicking();
 
   private:
     Board2D<BoardData> *board;
@@ -29,4 +32,8 @@ class SnakeGame {
     BoardData getOppositeDirection(BoardData direction);
     BoardPosition getNextPosition(BoardPosition currentPosition, BoardData direction);
     void move();
+    void tickLoop();
+    std::thread tickThread;
+    bool ticking = false;
+    int tickDelay = 500;
 };

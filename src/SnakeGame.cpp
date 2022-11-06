@@ -45,9 +45,28 @@ void SnakeGame::print(bool clearBoard = true) {
     cout << endl;
   }
 };
+void SnakeGame::startTicking() {
+  if (!ticking) {
+    ticking = true;
+    tickThread = std::thread([=]() {
+      tickLoop();
+    });
+  }
+};
+void SnakeGame::stopTicking() {
+  if (ticking) {
+    ticking = false;
+  }
+};
 void SnakeGame::tick() {
   move();
   print();
+};
+void SnakeGame::tickLoop() {
+  while (ticking) {
+    tick();
+    std::this_thread::sleep_for(std::chrono::milliseconds(tickDelay));
+  }
 };
 bool SnakeGame::turn(BoardData direction) {
   if (board->at(getNextPosition(headPosition, direction)) == getOppositeDirection(direction)) {
