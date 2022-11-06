@@ -4,6 +4,7 @@
 #include <string>
 #include <chrono>
 #include <thread>
+#include <cstdlib>
 
 using namespace std;
 
@@ -108,11 +109,19 @@ class SnakeGame {
       printChars[SnakeTail] = 'O';
       printChars[Food] = 'X';
 
-      headPosition = { x: 2, y: 0 };
-      tailPosition = { x: 0, y: 0 };
-      board->set(SnakeBodyRight, headPosition);
-      board->set(SnakeBodyRight, headPosition.x - 1, headPosition.y);
-      board->set(SnakeBodyRight, tailPosition);
+      for (int i = 0; i < 5; i++)
+      {
+        int x = rand() % board->getWidth();
+        int y = rand() % board->getHeight();
+        board->set(Food, x, y);
+      }
+
+      headPosition = { x: 7, y: 0 };
+      tailPosition = { x: 4, y: 0 };
+      for (int i = tailPosition.x; i < headPosition.x; i++)
+      {
+        board->set(SnakeBodyRight, i, headPosition.y);
+      }
     }
 
     void tick() {
@@ -131,9 +140,15 @@ class SnakeGame {
       Wall
     };
 
-    void turn(BoardData direction) {
+    bool turn(BoardData direction) {
+      BoardData currentDirection = board->at(headPosition);
+      if (board->at(getNextPosition(headPosition, direction)) == getOppositeDirection(direction)) {
+        return false;
+      }
+
       board->set(direction, headPosition);
       print();
+      return true;
     }
 
   private:
@@ -142,8 +157,23 @@ class SnakeGame {
     BoardPosition headPosition = { x: 0, y: 0 };
     BoardPosition tailPosition = { x: 0, y: 0 };
     BoardPosition getNextPosition(BoardPosition currentPosition) {
+      return getNextPosition(currentPosition, board->at(currentPosition));
+    }
+    BoardData getOppositeDirection(BoardData direction) {
+      if (direction == SnakeBodyRight) {
+        return SnakeBodyLeft;
+      }
+      if (direction == SnakeBodyLeft) {
+        return SnakeBodyRight;
+      }
+      if (direction == SnakeBodyUp) {
+        return SnakeBodyDown;
+      }
+      return SnakeBodyUp;
+    }
+    BoardPosition getNextPosition(BoardPosition currentPosition, BoardData direction) {
       BoardPosition nextPosition = currentPosition;
-      switch (board->at(currentPosition))
+      switch (direction)
       {
         case SnakeBodyUp:
           if (currentPosition.y == 0) {
@@ -181,6 +211,9 @@ class SnakeGame {
       BoardData nextHeadCell = board->at(nextHeadPosition);
       bool foodAhead = nextHeadCell == Food;
       if (!foodAhead) {
+        if (nextHeadCell != Empty) {
+          throw std::runtime_error("Morreu!");
+        }
         BoardData currentTailData = board->at(tailPosition);
         BoardPosition nextTailPosition = getNextPosition(tailPosition);
         board->reset(tailPosition);
@@ -193,29 +226,32 @@ class SnakeGame {
 
 int main(int argc, char const *argv[])
 {
-  if (argc != 3) {
-    cout << "You must define board width and height!" << endl;
-    return 1;
-  }
-
-  int boardWidth = stoi(argv[1]);
-  int boardHeight = stoi(argv[2]);
+  int boardWidth = argc < 2 ? 10 : stoi(argv[1]);
+  int boardHeight = argc < 3 ? 10 : stoi(argv[2]);
+  srand((unsigned) time(NULL));
 
   SnakeGame *game = new SnakeGame(boardWidth, boardHeight);
   game->print(false);
+
   SnakeGame::BoardData direcoes[] {
+    SnakeGame::SnakeBodyUp,
     SnakeGame::SnakeBodyRight,
     SnakeGame::SnakeBodyDown,
-    SnakeGame::SnakeBodyLeft,
-    SnakeGame::SnakeBodyUp
+    SnakeGame::SnakeBodyLeft
   };
-  for (int i = 0; i < 4; i++)
+
+  int tickTime = 200;
+  while (true)
   {
-    game->turn(direcoes[i]);
-    for (int i = 0; i < 5; i++)
+    int directionIndex = rand() % 4;
+    if (game->turn(direcoes[directionIndex])) {
+      std::this_thread::sleep_for(std::chrono::milliseconds(tickTime));
+    }
+    int steps = rand() % 5;
+    for (int j = 0; j < steps; j++)
     {
       game->tick();
-      std::this_thread::sleep_for(std::chrono::milliseconds(500));
+      std::this_thread::sleep_for(std::chrono::milliseconds(tickTime));
     }
   }
   return 0;
