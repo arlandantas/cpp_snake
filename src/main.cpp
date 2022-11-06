@@ -71,11 +71,9 @@ class SnakeGame {
     };
 
     bool turn(BoardData direction) {
-      BoardData currentDirection = board->at(headPosition);
       if (board->at(getNextPosition(headPosition, direction)) == getOppositeDirection(direction)) {
         return false;
       }
-
       board->set(direction, headPosition);
       print();
       return true;
@@ -141,6 +139,8 @@ class SnakeGame {
             nextPosition.x = currentPosition.x + 1;
           }
           break;
+        default:
+          break;
       }
       return nextPosition;
     }
@@ -152,7 +152,6 @@ class SnakeGame {
         if (nextHeadCell != Empty) {
           throw std::runtime_error("Morreu!");
         }
-        BoardData currentTailData = board->at(tailPosition);
         BoardPosition nextTailPosition = getNextPosition(tailPosition);
         board->reset(tailPosition);
         tailPosition = nextTailPosition;
